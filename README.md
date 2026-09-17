@@ -230,7 +230,7 @@ Every feature extractor, scoring formula, threshold, aggregation rule, and decis
 ### Prerequisites
 - Node.js 20.x
 - npm 10.x
-- Python 3.11.x
+- Python 3.12.x
 - MongoDB 7.x
 
 ### 1. Database Setup
@@ -365,6 +365,6 @@ pytest
 
 - **MongoDB connection refused**: Ensure MongoDB service is running locally on port 27017. Restart via `brew services restart mongodb-community` (macOS) or system services (Windows/Linux).
 - **Port already in use**: A previous process is holding a port. Use `lsof -i :5000` or `netstat -ano` to find the PID and kill it.
-- **Python version mismatch**: The ML service requires exactly Python 3.11.x due to `numba`/`librosa` limitations. Do not use 3.12 or 3.13.
+- **Python version mismatch**: The ML service requires exactly Python 3.12.x due to `numba`/`librosa` limitations. Do not use 3.11 or 3.13.
 - **CORS error**: Ensure the frontend is running on `http://localhost:5173` and `CORS_ORIGIN` in the backend `.env` matches exactly.
 - **401 loop on refresh**: Ensure cookies are enabled and no browser extensions are blocking the `refreshToken` cookie. Clear application storage and login again.
