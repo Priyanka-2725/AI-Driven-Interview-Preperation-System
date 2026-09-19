@@ -114,8 +114,10 @@ Every feature extractor, scoring formula, threshold, aggregation rule, and decis
 | `docs/sandbox-architecture.md` | Docker-based isolated code execution sandbox security constraints and flow. | None |
 | `docs/setup-guide.md` | Step-by-step local development setup instructions across all OSs. | None |
 | `docs/week1-report.md` | End-of-week status report, completion tracking, and blockers. | None |
-| `scripts/dev-all.sh` | Bash script to boot all three services concurrently with color-coded logging. | None |
-| `scripts/check-health.sh` | Bash script verifying the readiness of all three endpoints. | None |
+| `scripts/dev-all.sh` | Bash script to boot all three services concurrently (macOS/Linux). | None |
+| `scripts/dev-all.ps1` | PowerShell script to boot all three services concurrently (Windows natively). | None |
+| `scripts/check-health.sh` | Bash script verifying the readiness of all three endpoints (macOS/Linux). | None |
+| `scripts/check-health.ps1` | PowerShell script verifying the readiness of all three endpoints (Windows natively). | None |
 
 ### Files: Frontend
 | File | What It Contains | Depends On |
