@@ -63,42 +63,42 @@ Every feature extractor, scoring formula, threshold, aggregation rule, and decis
 
 ### Folders
 
-| Path | Responsibility | Owner |
-|---|---|---|
-| `docs/` | Technical documentation and architectural decisions. | All Members |
-| `scripts/` | Developer utility scripts for booting and health checks. | All Members |
-| `e2e-tests/` | Puppeteer scripts for testing frontend accessibility and responsive layouts. | All Members |
-| `frontend/` | React single-page application and browser media capture. | Member 1 |
-| `frontend/src/` | Frontend source code root. | Member 1 |
-| `frontend/src/config/` | Environment variables and configuration logic. | Member 1 |
-| `frontend/src/routes/` | Application routing definitions. | Member 1 |
-| `frontend/src/pages/` | Top-level React page components. | Member 1 |
-| `frontend/src/components/` | Reusable React components. | Member 1 |
-| `frontend/src/components/layout/` | Shell, navigation, and core layout components. | Member 1 |
-| `frontend/src/components/ui/` | Primitive UI components (buttons, inputs, cards). | Member 1 |
-| `frontend/src/context/` | React context providers (e.g., Auth). | Member 1 |
-| `frontend/src/hooks/` | Custom React hooks. | Member 1 |
-| `frontend/src/services/` | API clients and external communication layers. | Member 1 |
-| `frontend/src/types/` | TypeScript interfaces and type definitions. | Member 1 |
-| `frontend/src/utils/` | Helper functions and pure utility logic. | Member 1 |
-| `backend/` | Express API gateway, database models, and auth server. | Member 2 |
-| `backend/src/` | Backend source code root. | Member 2 |
-| `backend/src/config/` | Environment, database connections, and constants. | Member 2 |
-| `backend/src/models/` | Mongoose schema definitions. | Member 2 |
-| `backend/src/controllers/` | Request handlers and HTTP logic. | Member 2 |
-| `backend/src/services/` | Business logic and integrations (token, mlClient). | Member 2 |
-| `backend/src/routes/` | Express route definitions. | Member 2 |
-| `backend/src/middleware/` | Express middleware (auth, validation, errors). | Member 2 |
-| `backend/src/validators/` | Request validation schemas. | Member 2 |
-| `backend/src/utils/` | Utility classes and helpers. | Member 2 |
-| `ml-service/` | Python FastAPI application for ML computations. | Members 3 & 4 |
-| `ml-service/app/` | ML Service source code root. | Members 3 & 4 |
-| `ml-service/app/api/` | API routers and endpoints. | Members 3 & 4 |
-| `ml-service/app/api/endpoints/` | Specific HTTP endpoint implementations. | Members 3 & 4 |
-| `ml-service/app/core/` | Constants, exceptions, and core configuration. | Members 3 & 4 |
-| `ml-service/app/schemas/` | Pydantic validation models. | Members 3 & 4 |
-| `ml-service/app/features/` | Signal processing and math computations. | Members 3 & 4 |
-| `ml-service/tests/` | Pytest test suites. | Members 3 & 4 |
+| Path | Responsibility |
+|---|---|
+| `docs/` | Technical documentation and architectural decisions. |
+| `scripts/` | Developer utility scripts for booting and health checks. |
+| `e2e-tests/` | Puppeteer scripts for testing frontend accessibility and responsive layouts. |
+| `frontend/` | React single-page application and browser media capture. |
+| `frontend/src/` | Frontend source code root. |
+| `frontend/src/config/` | Environment variables and configuration logic. |
+| `frontend/src/routes/` | Application routing definitions. |
+| `frontend/src/pages/` | Top-level React page components. |
+| `frontend/src/components/` | Reusable React components. |
+| `frontend/src/components/layout/` | Shell, navigation, and core layout components. |
+| `frontend/src/components/ui/` | Primitive UI components (buttons, inputs, cards). |
+| `frontend/src/context/` | React context providers (e.g., Auth). |
+| `frontend/src/hooks/` | Custom React hooks. |
+| `frontend/src/services/` | API clients and external communication layers. |
+| `frontend/src/types/` | TypeScript interfaces and type definitions. |
+| `frontend/src/utils/` | Helper functions and pure utility logic. |
+| `backend/` | Express API gateway, database models, and auth server. |
+| `backend/src/` | Backend source code root. |
+| `backend/src/config/` | Environment, database connections, and constants. |
+| `backend/src/models/` | Mongoose schema definitions. |
+| `backend/src/controllers/` | Request handlers and HTTP logic. |
+| `backend/src/services/` | Business logic and integrations (token, mlClient). |
+| `backend/src/routes/` | Express route definitions. |
+| `backend/src/middleware/` | Express middleware (auth, validation, errors). |
+| `backend/src/validators/` | Request validation schemas. |
+| `backend/src/utils/` | Utility classes and helpers. |
+| `ml-service/` | Python FastAPI application for ML computations. |
+| `ml-service/app/` | ML Service source code root. |
+| `ml-service/app/api/` | API routers and endpoints. |
+| `ml-service/app/api/endpoints/` | Specific HTTP endpoint implementations. |
+| `ml-service/app/core/` | Constants, exceptions, and core configuration. |
+| `ml-service/app/schemas/` | Pydantic validation models. |
+| `ml-service/app/features/` | Signal processing and math computations. |
+| `ml-service/tests/` | Pytest test suites. |
 
 ### Files: Root & Docs
 | File | What It Contains | Depends On |
