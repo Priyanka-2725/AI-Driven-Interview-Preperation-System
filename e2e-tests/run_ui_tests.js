@@ -6,7 +6,7 @@ async function testResponsiveLayout(page, path, name) {
   
   for (const width of widths) {
     await page.setViewport({ width, height: 900 });
-    await page.goto(`http://localhost:5174${path}`, { waitUntil: 'networkidle2', timeout: 120000 });
+    await page.goto(`http://localhost:5173${path}`, { waitUntil: 'networkidle2', timeout: 120000 });
     
     const hasOverflow = await page.evaluate(() => {
       return document.documentElement.scrollWidth > window.innerWidth;
@@ -23,7 +23,7 @@ async function testResponsiveLayout(page, path, name) {
 async function testKeyboardAccessibility(page, path, name) {
   console.log(`\nTesting Keyboard Accessibility for ${name} (${path})`);
   await page.setViewport({ width: 1440, height: 900 });
-  await page.goto(`http://localhost:5174${path}`, { waitUntil: 'networkidle2', timeout: 120000 });
+  await page.goto(`http://localhost:5173${path}`, { waitUntil: 'networkidle2', timeout: 120000 });
   
   // Tab through until we loop or hit max
   let tabCount = 0;
@@ -70,20 +70,21 @@ async function testDashboardAccessibility(page) {
   await page.setViewport({ width: 1440, height: 900 });
   
   // First, we need to login to reach the dashboard
-  await page.goto(`http://localhost:5174/login`, { waitUntil: 'networkidle2', timeout: 120000 });
+  await page.goto(`http://localhost:5173/login`, { waitUntil: 'networkidle2', timeout: 120000 });
   
   // Type in dummy credentials and login (this uses the mock backend or real backend if registered)
   // Assuming test@test.com / password123 is registered, or we just register a fresh one.
   // We'll just register a fresh one to be safe.
-  await page.goto(`http://localhost:5174/register`, { waitUntil: 'networkidle2', timeout: 120000 });
+  await page.goto(`http://localhost:5173/register`, { waitUntil: 'networkidle2', timeout: 120000 });
   const uniqueEmail = `test_${Date.now()}@test.com`;
   await page.type('input[type="text"]', 'Test User');
   await page.type('input[type="email"]', uniqueEmail);
   await page.type('input[type="password"]', 'password123');
-  await Promise.all([
-    page.waitForNavigation({ waitUntil: 'networkidle0' }),
-    page.click('button[type="submit"]')
-  ]);
+  await page.click('button[type="submit"]');
+  // Wait for the dashboard to load (the sidebar or heading)
+  await page.waitForSelector('aside', { timeout: 120000 });
+  // Add a small delay for React to finish rendering focusable elements
+  await new Promise(r => setTimeout(r, 2000));
 
   // Now we are on dashboard
   let tabCount = 0;
