@@ -20,5 +20,8 @@
 - Fixed circular dependency between `apiClient` and `authService` in frontend token refresh logic.
 - Resolved bcrypt truncation bug on 72+ character JWT signatures.
 
+## Known Limitations
+- The authentication system returns identical status codes (401) and messages for unknown email and wrong password to prevent basic user enumeration. However, we have not yet measured the actual response timing to rule out a latency-based side-channel attack. This is deferred to a later security polish phase.
+
 ## Readiness for Week 2
 The repository is fully stabilized and integrated. Phase 6 acceptance tests have passed. We are ready for Week 2 (Vision & Recording).

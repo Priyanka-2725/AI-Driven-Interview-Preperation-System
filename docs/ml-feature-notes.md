@@ -1,7 +1,7 @@
 # ML Feature Extraction Notes
 
 ## 1. Acoustic Features
-Acoustic feature extraction heavily relies on `librosa` and `praat-parselmouth` to analyze raw audio arrays.
+Acoustic feature extraction relies heavily on `librosa` to analyze raw audio arrays. Following ADR-005, we explicitly use `librosa.pyin` for fundamental frequency estimation to accurately isolate pitched vocal frequencies from background noise, adhering to the "build it yourself" rule instead of using off-the-shelf wrappers like Praat/Parselmouth.
 
 ### 1.1 Energy (RMS)
 Energy represents the perceived loudness of the audio.

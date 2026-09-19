@@ -67,6 +67,7 @@ Every feature extractor, scoring formula, threshold, aggregation rule, and decis
 |---|---|---|
 | `docs/` | Technical documentation and architectural decisions. | All Members |
 | `scripts/` | Developer utility scripts for booting and health checks. | All Members |
+| `e2e-tests/` | Puppeteer scripts for testing frontend accessibility and responsive layouts. | All Members |
 | `frontend/` | React single-page application and browser media capture. | Member 1 |
 | `frontend/src/` | Frontend source code root. | Member 1 |
 | `frontend/src/config/` | Environment variables and configuration logic. | Member 1 |
