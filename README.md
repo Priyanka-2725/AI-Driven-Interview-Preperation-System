@@ -223,6 +223,7 @@ Every feature extractor, scoring formula, threshold, aggregation rule, and decis
 | `ml-service/app/features/geometry.py` | Math functions for Euclidean distance and Eye Aspect Ratio. | `constants.py` |
 | `ml-service/tests/__init__.py` | Package marker. | None |
 | `ml-service/tests/test_health.py` | Tests ensuring the ML service boots and replies 200. | `health.py` |
+| `ml-service/tests/test_audio.py` | Tests the full integration of the /audio/features endpoint. | `audio.py` |
 | `ml-service/tests/test_energy.py` | Synthetic tests for RMS computation and silence detection. | `energy.py` |
 | `ml-service/tests/test_pitch.py` | Synthetic tests evaluating pitch estimation accuracy. | `pitch.py` |
 | `ml-service/tests/test_geometry.py` | Tests asserting accuracy of EAR formulas on artificial polygons. | `geometry.py` |
