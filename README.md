@@ -185,6 +185,13 @@ Every feature extractor, scoring formula, threshold, aggregation rule, and decis
 | `backend/src/routes/index.js` | Main router aggregating all modular routes. | `authRoutes.js`, `systemRoutes.js` |
 | `backend/src/routes/authRoutes.js` | Route definitions for authentication endpoints. | `authController.js`, `authenticate.js` |
 | `backend/src/routes/systemRoutes.js` | Route definitions for health endpoints. | `systemController.js` |
+| `backend/src/routes/recordingRoutes.js` | Route definitions for recording endpoints. | `recordingController.js`, `authenticate.js`, `uploadHandler.js` |
+| `backend/src/models/Recording.js` | Mongoose schema for user audio recordings and evaluation results. | `User.js` |
+| `backend/src/controllers/recordingController.js` | Express route handlers for uploading, retrieving, and deleting recordings. | `Recording.js`, `audioConversionService.js`, `storageService.js`, `mlClient.js` |
+| `backend/src/services/storageService.js` | Helper for interacting with the local file system. | None |
+| `backend/src/services/audioConversionService.js` | Logic for wrapping ffmpeg-static to convert audio files to 16kHz WAV. | `storageService.js` |
+| `backend/src/middleware/uploadHandler.js` | Multer configuration for accepting valid webm/ogg files. | `ApiError.js`, `constants.js` |
+| `backend/src/validators/recordingValidators.js` | Zod schemas for pagination and other recording queries. | `validate.js` |
 | `backend/src/middleware/authenticate.js` | Express middleware verifying JWT access tokens. | `tokenService.js`, `User.js` |
 | `backend/src/middleware/validate.js` | Express middleware running Zod validation schemas against requests. | `ApiResponse.js` |
 | `backend/src/middleware/errorHandler.js` | Global error handler constructing standardized ApiResponse structures. | `ApiError.js`, `logger.js` |
