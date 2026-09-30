@@ -1,9 +1,11 @@
-import random
-
-def get_mock_confidence() -> float:
+def get_mock_confidence() -> dict:
     """
-    Generates a random confidence score between 70 and 100.
-    This acts as a placeholder for the visual confidence evaluation (eye tracking, head pose)
-    until it is fully implemented in Week 3.
+    Returns a mocked confidence evaluation payload.
     """
-    return round(random.uniform(70.0, 100.0), 1)
+    return {
+        "isSample": True,
+        "score": 72,
+        "eyeContactPercent": 68.0,
+        "headStability": "moderate",
+        "note": "Sample data — real video-based confidence scoring is not yet implemented (see docs/week2-report.md open concerns)."
+    }

@@ -12,20 +12,19 @@ client = TestClient(app)
 def test_evaluate_recording_success(mock_transcribe):
     # Setup mock return value
     mock_transcribe.return_value = {
-        "text": "Hello world",
-        "words": [{"word": "Hello"}, {"word": "world"}],
+        "text": "Hello um world like",
+        "words": [{"word": "Hello"}, {"word": "um"}, {"word": "world"}, {"word": "like"}],
         "duration": 2.0
     }
     
     # Create a synthetic valid wav file buffer
     sr = 16000
-    duration = 0.1
+    duration = 2.0
     audio = np.zeros(int(sr * duration), dtype=np.int16)
     wav_io = io.BytesIO()
     wavfile.write(wav_io, sr, audio)
     wav_bytes = wav_io.getvalue()
     
-    # Note: endpoint expects field name "audio"
     files = {"audio": ("test.wav", io.BytesIO(wav_bytes), "audio/wav")}
     response = client.post("/api/v1/evaluate", files=files)
     
@@ -35,12 +34,12 @@ def test_evaluate_recording_success(mock_transcribe):
     assert "fluency" in data
     assert "confidence" in data
     
-    # WPM = 2 words / 2 seconds * 60 = 60 wpm
-    assert data["fluency"]["wpm"] == 60.0
+    # Check updated fluency structure
+    assert "fillerWordCount" in data["fluency"]
+    assert data["fluency"]["fillerWordCount"] == 2 # um, like
     
-    # Confidence should be a float
-    assert 70.0 <= data["confidence"]["score"] <= 100.0
     assert data["confidence"]["isSample"] is True
+    assert data["confidence"]["headStability"] == "moderate"
 
 def test_evaluate_recording_invalid_extension():
     files = {"audio": ("test.mp3", io.BytesIO(b"dummy"), "audio/mpeg")}
