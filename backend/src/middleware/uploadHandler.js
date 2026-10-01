@@ -20,10 +20,10 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype === 'audio/webm' || file.mimetype === 'audio/ogg') {
+  if (file.mimetype === 'audio/webm' || file.mimetype === 'audio/ogg' || file.mimetype === 'audio/mp4') {
     cb(null, true);
   } else {
-    cb(new ApiError(400, ERROR_CODES.UNSUPPORTED_AUDIO_FORMAT, 'Only audio/webm and audio/ogg are supported'));
+    cb(new ApiError(400, ERROR_CODES.UNSUPPORTED_AUDIO_FORMAT, 'Only audio/webm, audio/ogg, and audio/mp4 are supported'));
   }
 };
 
