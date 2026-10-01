@@ -10,10 +10,10 @@ export const LandingPage: React.FC = () => {
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
           <h1 className="text-4xl tracking-tight font-extrabold text-ink-900 sm:text-5xl md:text-6xl">
-            <span className="block text-brand-600">AI Interview Coach</span>
+            <span className="block text-brand-600">AI-Driven Interview Preparation System</span>
           </h1>
           <p className="mt-3 max-w-md mx-auto text-base text-ink-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-            Master your interview skills with real-time feedback on confidence, fluency, and technical accuracy.
+            Practice smarter with real-time coaching for confidence, fluency, and technical interview performance.
           </p>
           <div className="mt-10 flex justify-center gap-4">
             <Link to="/register">

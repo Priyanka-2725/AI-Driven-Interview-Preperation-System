@@ -87,7 +87,7 @@ export const LoginPage: React.FC = () => {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-2 bg-surface text-ink-500">
-                  New to AI Interview Coach?
+                  New to AI Interview Prep?
                 </span>
               </div>
             </div>

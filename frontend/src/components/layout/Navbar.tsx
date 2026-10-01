@@ -11,7 +11,7 @@ export const Navbar: React.FC = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center justify-start rtl:justify-end">
             <span className="self-center text-xl font-semibold sm:text-2xl whitespace-nowrap text-brand-600">
-              AI Interview Coach
+              AI Interview Prep
             </span>
           </div>
           <div className="flex items-center gap-4">

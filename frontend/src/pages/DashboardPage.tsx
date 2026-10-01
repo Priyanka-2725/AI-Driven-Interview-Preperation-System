@@ -4,15 +4,22 @@ import { useSystemHealth } from '../hooks/useSystemHealth';
 import { Card } from '../components/ui/Card';
 import { StatusBadge } from '../components/ui/StatusBadge';
 
+import { Link } from 'react-router-dom';
+
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
   const { backendStatus, mlStatus } = useSystemHealth();
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-ink-900">Welcome back, {user?.fullName.split(' ')[0]}!</h1>
-        <p className="text-ink-500">Here's an overview of your interview performance.</p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-bold text-ink-900">Welcome back, {user?.fullName.split(' ')[0]}!</h1>
+          <p className="text-ink-500">Here's an overview of your interview performance.</p>
+        </div>
+        <Link to="/record" className="px-6 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition">
+          Start Practice Interview
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

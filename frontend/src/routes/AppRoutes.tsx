@@ -9,6 +9,8 @@ import { LoginPage } from '../pages/LoginPage';
 import { RegisterPage } from '../pages/RegisterPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { NotFoundPage } from '../pages/NotFoundPage';
+import { RecordingPage } from '../pages/RecordingPage';
+import { ResultsPage } from '../pages/ResultsPage';
 
 export const AppRoutes: React.FC = () => {
   const { user, isInitialising } = useAuth();
@@ -28,6 +30,8 @@ export const AppRoutes: React.FC = () => {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
           <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/record" element={<RecordingPage />} />
+          <Route path="/results/:id" element={<ResultsPage />} />
         </Route>
       </Route>
       
