@@ -12,33 +12,30 @@ const puppeteer = require('puppeteer');
   
   const page = await browser.newPage();
   
-  console.log("Navigating to register...");
-  await page.goto('http://localhost:5173/register', { waitUntil: 'networkidle2' });
+  console.log("Navigating to setup...");
+  await page.goto('http://127.0.0.1:4173', { waitUntil: 'load' });
   
   const uniqueEmail = `test_${Date.now()}@test.com`;
-  console.log("Registering as " + uniqueEmail);
+  console.log("Registering via API as " + uniqueEmail);
   
-  // Use page.evaluate to set input values to avoid issues with custom Input components
-  await page.evaluate((email) => {
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach(input => {
-      if (input.type === 'text' && input.name === '') input.value = 'Test User';
-      if (input.type === 'email') input.value = email;
-      if (input.type === 'password') input.value = 'password123';
-      
-      // Dispatch events so React picks it up
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-      input.dispatchEvent(new Event('change', { bubbles: true }));
+  const token = await page.evaluate(async (email) => {
+    const res = await fetch('http://127.0.0.1:5000/api/v1/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ fullName: 'Test User', email, password: 'password123' })
     });
+    const data = await res.json();
+    if (data.data && data.data.accessToken) {
+      localStorage.setItem('auth_token', data.data.accessToken);
+      return data.data.accessToken;
+    }
+    throw new Error(JSON.stringify(data));
   }, uniqueEmail);
   
-  await new Promise(r => setTimeout(r, 500));
-  await page.click('button[type="submit"]');
-  
-  await page.waitForNavigation({ waitUntil: 'networkidle2' });
+  console.log("Token obtained and set in localStorage.");
   
   console.log("Navigating to /record...");
-  await page.goto('http://localhost:5173/record', { waitUntil: 'networkidle2' });
+  await page.goto('http://127.0.0.1:4173/record', { waitUntil: 'load' });
   
   console.log("Requesting permissions...");
   // Click "Allow Camera & Microphone"
@@ -85,9 +82,24 @@ const puppeteer = require('puppeteer');
   await page.screenshot({ path: 'loading-state.png' });
   
   try {
-    await page.waitForNavigation({ timeout: 15000, waitUntil: 'networkidle2' });
+    await page.waitForNavigation({ timeout: 15000, waitUntil: 'load' });
     console.log("Navigation complete to: " + page.url());
     await page.screenshot({ path: 'results-state.png' });
+    
+    // Check uploads directory
+    const fs = require('fs');
+    const path = require('path');
+    const { execSync } = require('child_process');
+    const uploadsDir = 'd:\\\\AI-INTERVIEW-COACH\\\\backend\\\\uploads\\\\recordings';
+    const files = fs.readdirSync(uploadsDir);
+    const webmFile = files.find(f => f.endsWith('.webm'));
+    if (webmFile) {
+      console.log("Found uploaded file: " + webmFile);
+      const ffprobeCmd = `ffprobe -v error -show_entries stream=codec_type -of default=noprint_wrappers=1:nokey=1 "${path.join(uploadsDir, webmFile)}"`;
+      const output = execSync(ffprobeCmd, { encoding: 'utf-8' });
+      console.log("FFPROBE STREAMS (Should only be audio):");
+      console.log(output.trim());
+    }
   } catch(e) {
     console.log("Navigation timeout or error: " + e.message);
   }

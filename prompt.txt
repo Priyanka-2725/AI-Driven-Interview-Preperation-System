@@ -1,0 +1,401 @@
+<USER_REQUEST>
+# WEEK 2 EXECUTION PROMPT — AI Interview Coach
+
+> Copy everything below the line into your coding agent as a single prompt.
+
+---
+
+# ROLE
+
+You are continuing the AI Interview Coach capstone. Week 1 is complete and approved (backend
+auth, ML service audio-feature skeleton, frontend auth shell, all three services integrated).
+You are now executing **Week 2 only**: the recording pipeline and the first real fluency ML
+results.
+
+# THE SINGLE MOST IMPORTANT RULE — UNCHANGED FROM WEEK 1
+
+No silent decisions. Anything not explicitly specified here gets a `DECISION REQUIRED` block —
+options, trade-offs, your recommendation — and you wait for an answer. "Verified" means you ran
+it and are showing real output, not narration. If you patch something mid-build, say so
+explicitly in the same breath, not buried three paragraphs later. Do not build ahead into Week 3+
+(see OUT OF SCOPE at the end).
+
+---
+
+# PART 0 — LOCKED DECISIONS FOR WEEK 2
+
+### ADR-006: Local disk storage, not S3, for Week 2
+Recordings are stored on local disk under `backend/uploads/recordings/`, gitignored. S3
+integration is explicitly Week 7 ("deploy backend/database/storage services") — do not add AWS
+SDK or credentials this week.
+
+### ADR-007: Audio-only recording. No video is captured or stored.
+The webcam video stream is shown live in the browser (`<video>` element, `getUserMedia`) purely
+as a self-preview for the candidate — it is never recorded, uploaded, or analyzed this week.
+Only the audio track is captured via `MediaRecorder`. This matches the plan exactly: no
+member's Week 2 task involves facial landmarks, head pose, or video processing. Confidence
+scoring this week is a defined schema with clearly-labeled sample data (see Part 5.4), not real
+video ML.
+
+**Open concern, not resolved here — flag to your team/instructor:** none of the seven weeks in
+your implementation plan explicitly schedule the Dlib/OpenCV/`solvePnP`/MediaPipe work described
+in your technical spec, even though MediaPipe appears in Member 3's tech stack table. Someone
+needs to decide which week actually builds real video-based confidence scoring. Record this as
+an open item in `docs/week2-report.md`.
+
+### ADR-008: faster-whisper is in scope this week, minimally
+Use `faster-whisper` with the smallest practical model (`tiny.en` or `base.en` — English-only,
+CPU inference) to produce a transcript with word-level timestamps. This is the only thing the
+library does. WPM and filler-word counting are hand-rolled on top of its output — the library
+gives you words + timestamps (the spectrogram-equivalent of raw data), the arithmetic and the
+filler-word matching are yours, same distinction as Week 1's from-scratch policy.
+
+### ADR-009: Bundled ffmpeg, not a system dependency
+Use the `ffmpeg-static` npm package (bundles a static ffmpeg binary) with `fluent-ffmpeg` in the
+backend, specifically to avoid a repeat of Week 1's environment-install pain (Python 3.11, CRLF,
+etc.). Do not require the developer to install ffmpeg system-wide. If `ffmpeg-static` fails to
+resolve a working binary on this machine, that's a real `DECISION REQUIRED` — don't silently
+fall back to assuming system ffmpeg exists.
+
+### ADR-010: Recording pipeline is synchronous, not queued
+No Celery/Redis/job queue this week (ADR-001 from Week 1 still stands — no new async
+infrastructure). The upload endpoint calls the ML service directly and waits for the full
+result, with a generous timeout (see Part 3.3). This means upload response times may be several
+seconds to tens of seconds depending on recording length — the frontend must show a real loading
+state, not fake instant results. A background job queue is an explicit candidate for a later
+week if this becomes a UX problem; don't add one yet.
+
+### Format pipeline (locked)
+Browser records `audio/webm;codecs=opus` -> uploaded to backend as multipart -> backend converts
+to 16kHz mono WAV via ffmpeg-static -> forwarded to the **existing, unchanged** ML service
+`/api/v1/audio/features` endpoint from Week 1, plus the new `/api/v1/evaluate` endpoint (Part
+5.3) for the full scored result. **Do not modify the Week 1 `/api/v1/audio/features` contract —
+it stays exactly as approved.**
+
+### Caps (locked)
+- Max recording duration: 300 seconds (5 minutes)
+- Max upload size: 50 MB (raw webm, pre-conversion)
+- Reject anything over either cap with a clear error before attempting conversion
+
+---
+
+# PART 1 — NEW FILES
+
+Add to the existing Week 1 tree. Don't touch or restructure anything from Week 1 beyond what's
+listed here.
+
+```
+backend/
+├── uploads/recordings/          (gitignored, created at runtime, not committed)
+├── src/
+│   ├── models/
+│   │   └── Recording.js
+│   ├── controllers/
+│   │   └── recordingController.js
+│   ├── services/
+│   │   ├── storageService.js       (disk write/read/delete)
+│   │   ├── audioConversionService.js  (webm -> wav via ffmpeg-static)
+│   │   └── mlClient.js             (EXTEND existing file: add evaluateRecording())
+│   ├── routes/
+│   │   └── recordingRoutes.js
+│   ├── middleware/
+│   │   └── uploadHandler.js        (multer config, size/type limits)
+│   └── validators/
+│       └── recordingValidators.js
+
+ml-service/
+├── app/
+│   ├── api/endpoints/
+│   │   └── evaluate.py
+│   ├── features/
+│   │   ├── transcript.py           (faster-whisper wrapper)
+│   │   ├── fluency.py              (WPM, filler words, fluency score aggregation)
+│   │   └── confidence_sample.py    (fixed sample/mock confidence generator)
+│   └── core/
+│       └── filler_words.py         (the fixed filler-word list, as a named constant list)
+└── tests/
+    ├── test_transcript.py
+    ├── test_fluency.py
+    └── test_evaluate.py
+
+frontend/
+└── src/
+    ├── pages/
+    │   ├── RecordingPage.tsx
+    │   └── ResultsPage.tsx
+    ├── components/
+    │   └── recording/
+    │       ├── RecordingTimer.tsx
+    │       ├── RecordingControls.tsx
+    │       ├── AudioLevelMeter.tsx     (live visual feedback from the mic, not stored data)
+    │       └── ResultsSummaryCard.tsx
+    ├── hooks/
+    │   └── useMediaRecorder.ts
+    └── services/
+        └── recordingService.ts
+
+docs/
+└── week2-report.md
+```
+
+Update `README.md`'s Repository Map with real rows for every new file, same standard as Week 1
+— specific descriptions, not restated filenames.
+
+---
+
+# PART 2 — BACKEND: RECORDING & UPLOAD (Member 2)
+
+### 2.1 New dependencies
+`multer@1.4.5-lts.1`, `ffmpeg-static@5.2.0`, `fluent-ffmpeg@2.1.3`.
+
+### 2.2 `Recording` model
+
+| Field | Type | Rules |
+|---|---|---|
+| `userId` | ObjectId ref `User` | required, indexed |
+| `originalFilename` | String | required |
+| `storagePath` | String | required, `select: false` (never expose raw disk path to client) |
+| `durationSeconds` | Number | required |
+| `status` | String | enum `['uploaded','processing','analyzed','failed']`, default `'uploaded'` |
+| `failureReason` | String | default `null` |
+| `fluencyResult` | Object | embedded, default `null` — shape matches ML `/evaluate` response's `fluency` block |
+| `confidenceResult` | Object | embedded, default `null` — shape matches ML response's `confidence` block, **must include `isSample: true`** |
+| `analyzedAt` | Date | default `null` |
+
+`{ timestamps: true }`. `toJSON` transform strips `storagePath` and `__v`.
+
+### 2.3 Endpoints (under `/api/v1/recordings`, all require auth)
+
+| Method | Path | Body | Behavior |
+|---|---|---|---|
+| `POST` | `/` | multipart, field `audio` | Validate size/duration -> save to disk -> create `Recording` (status `uploaded`) -> convert to wav -> call ML `/evaluate` -> update doc with results (status `analyzed`) or `failureReason` (status `failed`) -> return full doc |
+| `GET` | `/` | — | List current user's recordings, newest first, paginated (`?page=&limit=`, default limit 20) |
+| `GET` | `/:id` | — | Single recording; `404` if not found or not owned by requester |
+| `DELETE` | `/:id` | — | Delete DB doc and the file on disk; `404` if not owned |
+
+Error codes to add to `constants.js`: `RECORDING_TOO_LARGE`, `RECORDING_TOO_LONG`,
+`UNSUPPORTED_AUDIO_FORMAT`, `CONVERSION_FAILED`, `ANALYSIS_FAILED`, `RECORDING_NOT_FOUND`.
+
+**`uploadHandler.js`**: multer with disk storage (not memory — files can be up to 50MB),
+`fileFilter` rejecting anything not `audio/webm` or `audio/ogg`, `limits.fileSize` at 50MB.
+Reject before the conversion step, with the same standard error envelope as Week 1.
+
+**`audioConversionService.js`**: wraps `fluent-ffmpeg` with the `ffmpeg-static` binary path,
+converts to 16kHz mono WAV, deletes the original webm after successful conversion, propagates
+ffmpeg failures as `ApiError` with code `CONVERSION_FAILED` — never let a raw ffmpeg stderr
+string leak into the API response.
+
+**`mlClient.js`**: add `evaluateRecording(wavFilePath)` — multipart POST to
+`${ML_SERVICE_URL}/api/v1/evaluate`, timeout **60000ms** (longer than Week 1's default, since
+Whisper inference is slow — make this its own configurable value,
+`ML_EVALUATE_TIMEOUT_MS`, not reusing `ML_SERVICE_TIMEOUT_MS`). On failure, set the recording's
+status to `failed` with a real `failureReason`, don't lose the upload.
+
+---
+
+# PART 3 — ML SERVICE: TRANSCRIPT, FLUENCY, SAMPLE CONFIDENCE (Members 3 & 4)
+
+### 3.1 New dependency
+Add to `requirements.txt`, pinned: `faster-whisper==1.0.3`. Verify it installs cleanly in the
+existing Week 1 venv before writing any code against it — if it doesn't (e.g. a CTranslate2
+wheel issue on this machine), that's a real `DECISION REQUIRED`, not a silent skip.
+
+### 3.2 `app/features/transcript.py`
+
+`transcribe(wav_path: str) -> dict` — loads the `tiny.en` (or `base.en`, your call, document
+which and why in `docs/ml-feature-notes.md`) model **once at module load**, not per-request
+(loading it per-request will make every single call unusably slow). Returns:
+```python
+{
+  "fullText": "...",
+  "words": [ {"word": "so", "start": 0.42, "end": 0.61}, ... ]
+}
+```
+Raise a clear exception if the audio has no detectable speech (empty `words`).
+
+### 3.3 `app/core/filler_words.py`
+
+A fixed, named list:
+```python
+FILLER_WORDS = ["um", "uh", "like", "you know", "actually", "basically", "literally", "so", "right", "okay"]
+```
+Document in `docs/ml-feature-notes.md` that this is a deliberately simple, case-insensitive,
+word-boundary substring match for Week 2 — Aho-Corasick or a more nuanced context-aware matcher
+(to avoid over-counting "so" and "right" when used non-filler) is explicitly Week 3 polish
+("improve speech-analysis reliability"), not Week 2's job.
+
+### 3.4 `app/features/fluency.py`
+
+Hand-rolled, NumPy/plain-Python, no shortcuts:
+
+- `compute_wpm(words: list, duration_seconds: float) -> float` — count words, divide by
+  `duration_seconds / 60`. Use **active speaking time** (duration minus total silence from
+  `energy.py`'s `detect_silence_segments`), not raw clip duration — document this choice, it
+  matches the original technical spec's "WPM... over active speaking time."
+- `count_filler_words(full_text: str) -> dict` — case-insensitive word-boundary matching against
+  `FILLER_WORDS`, returns `{"totalCount": int, "byWord": {"um": 3, "like": 5, ...}}`.
+- `compute_fluency_score(wpm, filler_count, silence_stats, pitch_stats) -> dict` — **this is the
+  one place real scoring/aggregation logic is introduced, which was explicitly out of scope in
+  Week 1.** Write a simple, transparent, documented formula — e.g. start at 100, subtract fixed
+  penalties for: WPM outside a healthy range (document the range and its source), filler-word
+  density above a threshold, silence ratio above a threshold. **Every constant must live in
+  `core/constants.py` with a comment explaining the number.** Return:
+  ```python
+  {
+    "score": 78,
+    "wpm": 142.3,
+    "fillerWordCount": 6,
+    "fillerWordBreakdown": {"um": 3, "like": 3},
+    "silenceRatio": 0.18,
+    "breakdown": { "wpmPenalty": 10, "fillerPenalty": 8, "silencePenalty": 4 }
+  }
+  ```
+  The `breakdown` field matters — a score with no visible reasoning is exactly the kind of
+  black-box the build-from-scratch policy exists to prevent. Document the full formula in
+  `docs/technical-scoring-design.md`.
+
+### 3.5 `app/features/confidence_sample.py`
+
+`generate_sample_confidence() -> dict` — returns a **fixed-shape, clearly-labeled** sample
+response matching what real video-based confidence scoring will eventually return:
+```python
+{
+  "isSample": True,
+  "score": 72,
+  "eyeContactPercent": 68.0,
+  "headStability": "moderate",
+  "note": "Sample data — real video-based confidence scoring is not yet implemented (see docs/week2-report.md open concerns)."
+}
+```
+This must NOT vary per request in a way that looks like real computation — use fixed or lightly
+randomized-within-a-documented-range values, and the `isSample`/`note` fields must always be
+present so nobody downstream (frontend, a grader, future-you) mistakes this for real output.
+
+### 3.6 `POST /api/v1/evaluate` (new endpoint, `app/api/endpoints/evaluate.py`)
+
+Accepts the same wav upload as Week 1's `/audio/features` (reuse `audio_loader.py` unchanged).
+Internally calls the Week 1 feature extractors (`energy`, `pitch`) plus the new `transcript` and
+`fluency` modules, plus `confidence_sample`. Returns:
+```json
+{
+  "durationSeconds": 45.2,
+  "fluency": { "score": 78, "wpm": 142.3, "fillerWordCount": 6, "fillerWordBreakdown": {}, "silenceRatio": 0.18, "breakdown": {} },
+  "confidence": { "isSample": true, "score": 72, "eyeContactPercent": 68.0, "headStability": "moderate", "note": "..." },
+  "transcript": { "fullText": "...", "wordCount": 107 }
+}
+```
+Does not replace `/api/v1/audio/features` — both endpoints exist side by side.
+
+### 3.7 Tests
+- `test_transcript.py`: transcribe a short synthetic TTS-free test — since you can't easily
+  synthesize real speech with NumPy, use a very short real recorded phrase checked into
+  `tests/fixtures/` (small, a few KB) — OR, if that's impractical, test that `transcribe()`
+  raises the correct exception on pure silence/noise input, and test `compute_wpm`/
+  `count_filler_words` purely with hand-constructed word lists (no audio needed for those two).
+- `test_fluency.py`: `count_filler_words` on a known string with known expected count;
+  `compute_wpm` on a known word list/duration with hand-calculated expected result;
+  `compute_fluency_score` on a few hand-picked input combinations with manually verified expected
+  scores (show your hand calculation in a code comment next to each assertion).
+- `test_evaluate.py`: full endpoint test with a real short wav fixture, asserting the response
+  shape matches Part 3.6 exactly, and that `confidence.isSample` is `true`.
+
+---
+
+# PART 4 — FRONTEND: RECORDING INTERFACE (Member 1)
+
+### 4.1 `useMediaRecorder.ts`
+Hook wrapping `navigator.mediaDevices.getUserMedia({ audio: true, video: true })` (video for
+live preview only, per ADR-007) and `MediaRecorder` on the **audio track only**
+(`new MediaRecorder(audioOnlyStream, { mimeType: 'audio/webm;codecs=opus' })` — construct a
+separate `MediaStream` containing only the audio track for the recorder, while the raw combined
+stream feeds a `<video>` element with `muted` for self-preview). Exposes
+`{ status, startRecording, stopRecording, recordedBlob, elapsedSeconds, error }`. Enforces the
+300-second cap client-side (auto-stop at the limit, not just a warning) as well as the backend
+cap.
+
+### 4.2 `RecordingPage.tsx`
+Requests permissions on mount with a clear pre-permission explainer (don't just slam the browser
+prompt with no context). States: `idle` -> `permissionRequested` -> `ready` -> `recording` ->
+`uploading` -> `complete` -> `error`. Shows `RecordingTimer`, `AudioLevelMeter` (live mic level
+via `AnalyserNode`, not from the recorded file — this is real-time visual feedback, not stored
+data), and `RecordingControls` (start/stop, re-record before upload). On stop, shows a preview
+player for the recorded audio blob before committing to upload — the candidate should be able to
+discard and re-record. On upload, show real progress/loading state reflecting that analysis can
+take up to a minute (per ADR-010) — not a generic spinner with no context; tell the user what's
+happening ("Transcribing your response...").
+
+### 4.3 `ResultsPage.tsx`
+Displays the returned `fluency` and `confidence` blocks. **The confidence card must visibly
+indicate it's sample data** — don't hide `isSample` from the UI; render it as a labeled banner
+("Sample data — full video-based confidence scoring is coming in a later week"), not fine print.
+Fluency results render the real `score`, `wpm`, filler word breakdown, and the `breakdown`
+penalty object in human-readable form (e.g., a small table or list, not just raw JSON).
+
+### 4.4 `recordingService.ts`
+`uploadRecording(blob: Blob) -> Promise<Recording>`, `listRecordings()`,
+`getRecording(id: string)`. Uses the existing `apiClient.ts` — multipart upload needs
+`Content-Type: multipart/form-data`, let axios set the boundary automatically (don't hand-set the
+header, that breaks multipart boundaries — a real, common bug, watch for it).
+
+---
+
+# PART 5 — VERIFICATION (same evidence bar as Week 1 — real output only)
+
+- Real recorded audio (from an actual browser session, not a synthetic file) uploaded end to end,
+  with the actual returned JSON shown — `fluency.score` and `fluency.wpm` should be plausible for
+  whatever was actually said (sanity-check this yourself against what was actually recorded)
+- `confidence.isSample` confirmed `true` in the real response, and confirmed visible in the
+  actual rendered UI (screenshot or Puppeteer DOM check), not just present in the JSON
+- Oversized/overlong recording rejected client-side and server-side, with real error responses
+  shown for both
+- ffmpeg conversion failure path tested with a deliberately corrupt upload, showing the real
+  `CONVERSION_FAILED` response and confirming the backend doesn't crash
+- `pytest -v` full output for the three new ML test files, plus the full Week 1 suite re-run to
+  confirm nothing regressed
+- `GET /api/v1/recordings` and `GET /api/v1/recordings/:id` tested for ownership — a second user
+  account must get `404`, not another user's recording, on both endpoints
+- `DELETE` removes both the DB doc and the actual file from `uploads/recordings/` — verify the
+  file is actually gone, not just the DB row
+
+---
+
+# PART 6 — OUT OF SCOPE (do not build)
+
+Real video/facial landmark processing, Dlib, MediaPipe, OpenCV `solvePnP`, EAR-based eye contact
+from actual video, S3/cloud storage, Celery/Redis/any job queue, Socket.io/real-time progress
+streaming, the coding sandbox, question generation, combined/aggregated overall interview score
+(fluency + confidence + technical together), the analytics dashboard, Aho-Corasick filler-word
+matching, multi-language transcription, speaker diarization.
+
+---
+
+# PART 7 — EXECUTION ORDER
+
+Same phased approach as Week 1 — stop for approval between each:
+
+- **Phase 1** — Backend: `Recording` model, upload/conversion pipeline, endpoints. Verify with a
+  manually-crafted webm file (doesn't need to be from a real browser yet) through to a stored,
+  converted wav on disk. Stop.
+- **Phase 2** — ML service: `transcript.py`, `fluency.py`, `confidence_sample.py`, the `/evaluate`
+  endpoint, all tests. Stop.
+- **Phase 3** — Frontend: recording interface, results display. Stop.
+- **Phase 4** — Integration: a real end-to-end recording from an actual browser session through
+  to displayed results. Stop.
+- **Phase 5** — Documentation: `docs/week2-report.md` (including the open concern about
+  unscheduled video-confidence work), README Repository Map update, verification checklist
+  walkthrough with real evidence for every item in Part 5.
+
+Do not chain phases automatically — same rule as Week 1.
+</USER_REQUEST>
+<ADDITIONAL_METADATA>
+The current local time is: 2026-09-30T23:42:41+05:30.
+
+The user's current state is as follows:
+Active Document: d:\AI-INTERVIEW-COACH\frontend\postcss.config.js (LANGUAGE_JAVASCRIPT)
+Cursor is on line: 1
+Other open documents:
+- d:\AI-INTERVIEW-COACH\frontend\postcss.config.js (LANGUAGE_JAVASCRIPT)
+</ADDITIONAL_METADATA>
+<USER_SETTINGS_CHANGE>
+The user changed setting `Model Selection` from None to Gemini 3.1 Pro (High). No need to comment on this change if the user doesn't ask about it. If reporting what model you are, please use a human readable name instead of the exact string.
+</USER_SETTINGS_CHANGE>
