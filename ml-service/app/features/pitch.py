@@ -7,13 +7,17 @@ def estimate_f0(y, sr):
         return np.array([])
     
     # YIN algorithm for pitch estimation (probabilistic YIN)
+    # Using a coarser hop_length (e.g., 512) specifically for pitch to speed it up 
+    # compared to the 10ms (160) hop_length used for energy.
+    PITCH_HOP_LENGTH = 512
+    
     f0, voiced_flag, voiced_probs = librosa.pyin(
         y, 
         fmin=PITCH_FMIN_HZ, 
         fmax=PITCH_FMAX_HZ, 
         sr=sr,
         frame_length=FRAME_LENGTH,
-        hop_length=HOP_LENGTH
+        hop_length=PITCH_HOP_LENGTH
     )
     
     # Filter out unvoiced frames or frames with probability < 0.5
@@ -33,8 +37,9 @@ def extract_pitch(y, sr):
     mean_hz = np.mean(valid_f0)
     std_hz = np.std(valid_f0)
     
+    PITCH_HOP_LENGTH = 512
     # Total frames is roughly len(y) / hop_length
-    total_frames = max(1, len(y) // HOP_LENGTH)
+    total_frames = max(1, len(y) // PITCH_HOP_LENGTH)
     voiced_ratio = len(valid_f0) / total_frames
     
     return {

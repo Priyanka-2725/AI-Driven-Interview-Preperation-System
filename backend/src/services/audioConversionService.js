@@ -22,7 +22,7 @@ class AudioConversionService {
         .on('end', async () => {
           logger.info(`Successfully converted audio to WAV: ${outputPath}`);
           try {
-            await storageService.deleteFile(inputPath);
+            // await storageService.deleteFile(inputPath);
           } catch (err) {
             logger.warn(`Could not delete original file ${inputPath}: ${err.message}`);
           }

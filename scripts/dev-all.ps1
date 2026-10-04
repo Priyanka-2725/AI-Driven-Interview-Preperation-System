@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 
 Write-Host "Starting ML Service..."
 Set-Location ml-service
-$mlProcess = Start-Process -NoNewWindow -PassThru -FilePath "powershell.exe" -ArgumentList "-Command `".\.venv\Scripts\Activate.ps1; uvicorn app.main:app --port 8000`""
+$mlProcess = Start-Process -NoNewWindow -PassThru -FilePath "powershell.exe" -ArgumentList "-Command `".\.venv\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000`""
 Set-Location ..
 
 Write-Host "Starting Backend Service..."

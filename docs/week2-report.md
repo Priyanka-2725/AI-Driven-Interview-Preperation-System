@@ -29,3 +29,9 @@ Input #0, matroska,webm
 *(Notice the absence of a video stream).*
 
 **Action Item:** In Phase 4 and beyond, automated E2E tests involving media recording will need to be revisited with alternative frameworks (such as Playwright with explicit network/CORS configurations) to establish a permanent automated testing strategy, rather than quietly relying on manual testing.
+
+### UI Decision: Hiding Zero-Value Penalty Breakdowns
+
+During the UI implementation for the fluency score, it was a deliberate design decision to **hide** any breakdown items (such as the filler words penalty or silence penalty) if their value is zero. 
+
+This keeps the UI uncluttered and emphasizes only the areas where the candidate actually lost points. If a candidate speaks perfectly with zero filler words, showing a "0 Penalty" line distracts from the positive feedback. This pattern will be consistently applied for future UI score breakdowns.
