@@ -6,3 +6,9 @@ dist/
 *.log
 .DS_Store
 .pytest_cache/
+
+# Ignore test artifacts and user uploads
+backend/dev-tools/*.webm
+backend/dev-tools/*.wav
+backend/uploads/recordings/*
+!backend/uploads/recordings/.gitkeep
