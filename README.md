@@ -119,6 +119,7 @@ Every feature extractor, scoring formula, threshold, aggregation rule, and decis
 | `scripts/dev-all.ps1` | PowerShell script to boot all three services concurrently (Windows natively). | None |
 | `scripts/check-health.sh` | Bash script verifying the readiness of all three endpoints (macOS/Linux). | None |
 | `scripts/check-health.ps1` | PowerShell script verifying the readiness of all three endpoints (Windows natively). | None |
+| `docs/week2-report.md` | End-of-week status report, completion tracking, and blockers for Week 2. | None |
 
 ### Files: Frontend
 | File | What It Contains | Depends On |
@@ -142,11 +143,17 @@ Every feature extractor, scoring formula, threshold, aggregation rule, and decis
 | `frontend/src/pages/LoginPage.tsx` | User authentication form page. | `AuthContext.tsx`, UI components |
 | `frontend/src/pages/RegisterPage.tsx` | New user account creation page. | `AuthContext.tsx`, UI components |
 | `frontend/src/pages/DashboardPage.tsx` | Protected user dashboard with system status indicators. | `AppShell.tsx`, `useSystemHealth.ts` |
+| `frontend/src/pages/RecordingPage.tsx` | Audio recording interface with permissions and live feedback. | UI components, `useMediaRecorder.ts` |
+| `frontend/src/pages/ResultsPage.tsx` | Display page for fluency and confidence evaluation results. | UI components |
 | `frontend/src/pages/NotFoundPage.tsx` | 404 error page. | UI components |
 | `frontend/src/components/layout/AppShell.tsx` | Master layout wrapper containing navigation elements. | `Navbar.tsx`, `Sidebar.tsx` |
 | `frontend/src/components/layout/Navbar.tsx` | Top navigation bar with branding and user actions. | `AuthContext.tsx` |
 | `frontend/src/components/layout/Sidebar.tsx` | Side navigation drawer for application sections. | None |
 | `frontend/src/components/layout/Footer.tsx` | Application footer component. | None |
+| `frontend/src/components/recording/RecordingTimer.tsx` | Visual timer displaying elapsed recording duration. | None |
+| `frontend/src/components/recording/RecordingControls.tsx` | Buttons for start, stop, and re-record actions. | None |
+| `frontend/src/components/recording/AudioLevelMeter.tsx` | Live visual microphone input level feedback. | None |
+| `frontend/src/components/recording/ResultsSummaryCard.tsx` | Card displaying parsed ML evaluation results. | None |
 | `frontend/src/components/ui/Button.tsx` | Styled, accessible button primitive with loading states. | None |
 | `frontend/src/components/ui/Input.tsx` | Styled, accessible text input primitive with validation states. | None |
 | `frontend/src/components/ui/Card.tsx` | Container primitive utilizing shadow and border tokens. | None |
@@ -156,9 +163,11 @@ Every feature extractor, scoring formula, threshold, aggregation rule, and decis
 | `frontend/src/context/AuthContext.tsx` | Global state provider for user session and authentication operations. | `apiClient.ts`, `authService.ts` |
 | `frontend/src/hooks/useAuth.ts` | Convenience hook for accessing the Auth context. | `AuthContext.tsx` |
 | `frontend/src/hooks/useSystemHealth.ts` | Hook polling backend health endpoints on an interval. | `systemService.ts` |
+| `frontend/src/hooks/useMediaRecorder.ts` | Audio capture hook managing MediaRecorder state and streams. | None |
 | `frontend/src/services/apiClient.ts` | Configured Axios instance with request IDs and 401 interceptors. | `env.ts`, `tokenStorage.ts` |
 | `frontend/src/services/authService.ts` | API calls related to registration, login, and token refreshing. | `apiClient.ts` |
 | `frontend/src/services/systemService.ts` | API calls for retrieving overall system health. | `apiClient.ts` |
+| `frontend/src/services/recordingService.ts` | API calls for uploading and retrieving audio recordings. | `apiClient.ts` |
 | `frontend/src/types/auth.types.ts` | Interfaces for User objects, login payloads, and auth responses. | None |
 | `frontend/src/types/api.types.ts` | Interfaces for standardized API response envelopes and errors. | None |
 | `frontend/src/utils/validators.ts` | Client-side input validation matching backend rules. | None |
@@ -217,8 +226,10 @@ Every feature extractor, scoring formula, threshold, aggregation rule, and decis
 | `ml-service/app/api/endpoints/__init__.py` | Package marker. | None |
 | `ml-service/app/api/endpoints/health.py` | Root and version health check endpoints. | `config.py` |
 | `ml-service/app/api/endpoints/audio.py` | Audio processing endpoint initiating feature extraction. | `audio_loader.py`, `energy.py`, `pitch.py` |
+| `ml-service/app/api/endpoints/evaluate.py` | End-to-end evaluation endpoint returning scored results. | `transcript.py`, `fluency.py`, `confidence_sample.py` |
 | `ml-service/app/core/__init__.py` | Package marker. | None |
 | `ml-service/app/core/constants.py` | Global maths thresholds and constants. | None |
+| `ml-service/app/core/filler_words.py` | Fixed list of filler words for fluency evaluation. | None |
 | `ml-service/app/core/exceptions.py` | Custom exception classes for ML pipeline failures. | None |
 | `ml-service/app/core/logging_config.py` | Standardized Python logger setup. | None |
 | `ml-service/app/schemas/__init__.py` | Package marker. | None |
@@ -229,12 +240,18 @@ Every feature extractor, scoring formula, threshold, aggregation rule, and decis
 | `ml-service/app/features/energy.py` | Functions calculating RMS and gating silent segments. | `constants.py` |
 | `ml-service/app/features/pitch.py` | Functions calculating fundamental frequency and voiced ratios. | `constants.py` |
 | `ml-service/app/features/geometry.py` | Math functions for Euclidean distance and Eye Aspect Ratio. | `constants.py` |
+| `ml-service/app/features/transcript.py` | Wrapper for faster-whisper generating transcripts and timestamps. | None |
+| `ml-service/app/features/fluency.py` | WPM, filler word counting, and score aggregation logic. | `constants.py`, `filler_words.py` |
+| `ml-service/app/features/confidence_sample.py` | Mock data generator for confidence scores. | None |
 | `ml-service/tests/__init__.py` | Package marker. | None |
 | `ml-service/tests/test_health.py` | Tests ensuring the ML service boots and replies 200. | `health.py` |
 | `ml-service/tests/test_audio.py` | Tests the full integration of the /audio/features endpoint. | `audio.py` |
 | `ml-service/tests/test_energy.py` | Synthetic tests for RMS computation and silence detection. | `energy.py` |
 | `ml-service/tests/test_pitch.py` | Synthetic tests evaluating pitch estimation accuracy. | `pitch.py` |
 | `ml-service/tests/test_geometry.py` | Tests asserting accuracy of EAR formulas on artificial polygons. | `geometry.py` |
+| `ml-service/tests/test_transcript.py` | Synthetic or fixture-based tests for faster-whisper transcription. | `transcript.py` |
+| `ml-service/tests/test_fluency.py` | Formula correctness tests for WPM, fillers, and scores. | `fluency.py` |
+| `ml-service/tests/test_evaluate.py` | Endpoint tests for the full /evaluate pipeline. | `evaluate.py` |
 
 ## Getting Started
 

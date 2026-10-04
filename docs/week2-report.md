@@ -35,3 +35,7 @@ Input #0, matroska,webm
 During the UI implementation for the fluency score, it was a deliberate design decision to **hide** any breakdown items (such as the filler words penalty or silence penalty) if their value is zero. 
 
 This keeps the UI uncluttered and emphasizes only the areas where the candidate actually lost points. If a candidate speaks perfectly with zero filler words, showing a "0 Penalty" line distracts from the positive feedback. This pattern will be consistently applied for future UI score breakdowns.
+
+### Open Concern: Unscheduled Video-Confidence Work
+
+None of the seven weeks in the implementation plan explicitly schedule the Dlib/OpenCV/`solvePnP`/MediaPipe work described in the technical spec for real video-based confidence scoring, even though MediaPipe appears in the tech stack table. Someone needs to decide which week actually builds real video-based confidence scoring, as currently it is only a fixed sample mock.
