@@ -39,7 +39,7 @@ class AudioConversionService {
         })
         .on('error', (err) => {
           logger.error(`Error converting audio: ${err.message}`);
-          reject(new ApiError(500, 'Failed to convert audio file', ERROR_CODES.CONVERSION_FAILED));
+          reject(new ApiError(500, ERROR_CODES.CONVERSION_FAILED, 'Failed to convert audio file'));
         });
     });
   }
