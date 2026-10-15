@@ -7,9 +7,9 @@ export const recordingService = {
     formData.append('audio', blob, 'recording.webm');
     
     // axios sets the multipart boundary automatically when sending FormData
-    // The timeout for this endpoint needs to be large (60 seconds) because ML evaluation is synchronous
+    // The timeout for this endpoint needs to be large (180 seconds) because ML evaluation is synchronous
     const response = await apiClient.post<{ status: string; data: Recording }>('/recordings', formData, {
-      timeout: 60000 // 60 seconds
+      timeout: 180000 // 180 seconds (3 minutes)
     });
     return response.data.data;
   },

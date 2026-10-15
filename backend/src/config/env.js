@@ -14,7 +14,7 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string().url(),
   ML_SERVICE_URL: z.string().url(),
   ML_SERVICE_TIMEOUT_MS: z.string().transform(Number).default('10000'),
-  ML_EVALUATE_TIMEOUT_MS: z.string().transform(Number).default('60000'),
+  ML_EVALUATE_TIMEOUT_MS: z.string().transform(Number).default('180000'),
   LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info')
 });
 

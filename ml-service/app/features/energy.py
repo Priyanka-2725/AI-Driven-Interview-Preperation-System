@@ -21,28 +21,27 @@ def detect_silence_segments(db_frames, hop_length, sr, threshold_db, min_duratio
     total_silent_frames = 0
     longest_segment_frames = 0
     current_segment_frames = 0
+    frame_duration = hop_length / sr
     
     for silent in is_silent:
         if silent:
             current_segment_frames += 1
-            total_silent_frames += 1
         else:
             if current_segment_frames > 0:
-                frame_duration = hop_length / sr
                 if (current_segment_frames * frame_duration) >= min_duration_s:
                     segment_count += 1
+                    total_silent_frames += current_segment_frames
                     if current_segment_frames > longest_segment_frames:
                         longest_segment_frames = current_segment_frames
                 current_segment_frames = 0
                 
     if current_segment_frames > 0:
-        frame_duration = hop_length / sr
         if (current_segment_frames * frame_duration) >= min_duration_s:
             segment_count += 1
+            total_silent_frames += current_segment_frames
             if current_segment_frames > longest_segment_frames:
                 longest_segment_frames = current_segment_frames
             
-    frame_duration = hop_length / sr
     total_silent_seconds = total_silent_frames * frame_duration
     longest_silent_seconds = longest_segment_frames * frame_duration
     

@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect, ReactNode } from 'react';
+import axios from 'axios';
 import { User } from '../types/auth.types';
 import { authService } from '../services/authService';
 import { clearToken } from '../utils/tokenStorage';
@@ -17,6 +18,20 @@ interface AuthContextType {
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
+
+const getErrorMessage = (err: unknown, fallback: string): string => {
+  if (axios.isAxiosError(err)) {
+    return (
+      err.response?.data?.error?.message ||
+      err.response?.data?.message ||
+      fallback
+    );
+  }
+  if (err instanceof Error) {
+    return err.message;
+  }
+  return fallback;
+};
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -70,7 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setAccessToken(res.accessToken);
       setUser(res.user);
     } catch (err: unknown) {
-      setError((err as Error)?.message || 'Login failed');
+      setError(getErrorMessage(err, 'Login failed'));
       throw err;
     } finally {
       setIsSubmitting(false);
@@ -85,7 +100,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setAccessToken(res.accessToken);
       setUser(res.user);
     } catch (err: unknown) {
-      setError((err as Error)?.message || 'Registration failed');
+      setError(getErrorMessage(err, 'Registration failed'));
       throw err;
     } finally {
       setIsSubmitting(false);
