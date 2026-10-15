@@ -47,7 +47,7 @@ Every feature extractor, scoring formula, threshold, aggregation rule, and decis
 
 - **ADR-001:** The backend is split between an Express gateway/orchestrator (Member 2) and a Python FastAPI stateless computation service (Members 3 & 4), overriding the originally proposed single FastAPI monolith with Celery/Redis/PostgreSQL.
 - **ADR-002:** MongoDB with Mongoose is the only database utilized across the system.
-- **ADR-003:** Facial landmark extraction utilizes Dlib's 68-point predictor with OpenCV solvePnP for head pose, to be installed in Week 2.
+- **ADR-003:** Facial landmark extraction utilizes Dlib's 68-point predictor with OpenCV solvePnP for head pose (unscheduled; pending team decision, see docs/week2-report.md).
 
 ## Technology Stack
 
@@ -370,15 +370,17 @@ pytest
 
 ## Week-by-Week Roadmap
 
-| Week | Phase | Focus | Status |
-|---|---|---|---|
-| 1 | Foundation | Monorepo scaffolding, Authentication, ML audio extraction skeleton. | Complete |
-| 2 | Vision & Recording | MediaRecorder integration, Dlib landmarks, head pose calculations. | Planned |
-| 3 | Audio & ASR | Audio extraction pipelines, Whisper transcriptions, fluency metrics. | Planned |
-| 4 | Technical Scoring | Siamese bi-encoder inference, TF-IDF concept extraction. | Planned |
-| 5 | Code Sandbox | Docker-based isolated code execution. | Planned |
-| 6 | Feedback Aggregation | Scoring logic, overall analytics, UI polish. | Planned |
-| 7 | Deployment | Production deployment, CI/CD, final testing. | Planned |
+| Week | Focus | Status |
+|---|---|---|
+| 1 | Foundation and System Setup | Complete |
+| 2 | Core ML Pipelines — Confidence and Fluency | Complete (fluency is real; confidence is sample data only) |
+| 3 | Technical Assessment Engine | Planned |
+| 4 | Advanced Interactive Features | Planned |
+| 5 | Sandbox Execution and Analytics Dashboard | Planned |
+| 6 | Quality Assurance and Optimization | Planned |
+| 7 | Deployment, Documentation, and Final Presentation | Planned |
+
+Unscheduled: real video-based confidence scoring has no assigned week. Pending team decision. See docs/week2-report.md.
 
 ## Team
 

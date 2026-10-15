@@ -93,4 +93,4 @@ Writing code isn't enough; we have to prove it doesn't break.
 ---
 
 ### Summary of Week 1
-We laid the concrete foundation. We have a secure, scalable 3-part system where users can safely log in, and the infrastructure is completely ready to start processing real audio and video in Week 2!
+We laid the concrete foundation. We have a secure, scalable 3-part system where users can safely log in, and the infrastructure is completely ready for Week 2 (Core ML Pipelines — Confidence and Fluency)!

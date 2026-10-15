@@ -55,7 +55,7 @@ async def evaluate_recording(audio: UploadFile = File(...)):
             fluency_dict = compute_fluency_score(wpm, filler_count, silence_stats, pitch_stats)
             print(f"Fluency computation took: {time.time() - t2:.2f}s")
             
-            # 4. Compute Confidence (Mock placeholder for Week 3 Vision)
+            # 4. Compute Confidence (Mock placeholder; real video-based confidence scoring is unscheduled)
             conf_dict = get_mock_confidence()
             
             print(f"--- ML PIPELINE TOTAL TOOK: {time.time() - t_start:.2f}s ---")

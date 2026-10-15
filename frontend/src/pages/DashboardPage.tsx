@@ -46,11 +46,11 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card title="Coming in Week 2">
+        <Card title="Coming in Week 3">
           <ul className="list-disc list-inside space-y-2 text-ink-700">
-            <li>Video and audio recording interface</li>
-            <li>Real-time facial landmark extraction</li>
-            <li>Submission queue and processing</li>
+            <li>Technical Assessment Engine</li>
+            <li>Semantic answer scoring</li>
+            <li>Concept verification</li>
           </ul>
         </Card>
 

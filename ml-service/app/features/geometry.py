@@ -30,6 +30,6 @@ def is_blink(ear, threshold=0.2):
 
 def extract_geometry():
     """
-    Placeholder for main geometry extraction endpoint, which is deferred to Week 2.
+    Placeholder for main geometry extraction endpoint (unscheduled; pending team decision, see docs/week2-report.md).
     """
     pass

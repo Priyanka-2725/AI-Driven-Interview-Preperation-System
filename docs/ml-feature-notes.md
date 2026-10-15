@@ -20,8 +20,8 @@ Speech rate is estimated by detecting onset envelopes.
 - We use `librosa.onset.onset_detect` combined with silence detection to find spoken syllables versus pauses.
 - Pauses longer than 1.5 seconds are tracked.
 
-## 2. Geometry Features (Week 2 Deferred)
-In Week 2, video will be processed using Dlib or MediaPipe to extract facial landmarks.
+## 2. Geometry Features (Unscheduled)
+Video processing using Dlib or MediaPipe to extract facial landmarks is currently unscheduled (pending team decision, see docs/week2-report.md).
 
 ### 2.1 Head Pose Estimation
 - Uses the solvePnP algorithm to map 2D facial landmarks to a 3D model.
