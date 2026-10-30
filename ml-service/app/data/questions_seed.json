@@ -1,0 +1,393 @@
+[
+  {
+    "id": "q_seed_001",
+    "title": "Two Sum",
+    "slug": "two-sum",
+    "topic": "arrays",
+    "difficulty": "easy",
+    "type": "coding",
+    "description": "Given an array of integers and an integer target, print the 0-based indices of the two numbers such that they add up to the target. Print the indices separated by a space in ascending order. Assume exactly one solution exists and you may not use the same element twice.",
+    "starterCode": {
+      "python": "import sys\n\ndef solve():\n    lines = sys.stdin.read().splitlines()\n    if not lines:\n        return\n    nums = list(map(int, lines[0].split()))\n    target = int(lines[1].strip())\n    # Your solution here\n\nif __name__ == '__main__':\n    solve()\n"
+    },
+    "referenceSolution": "import sys\n\ndef solve():\n    lines = sys.stdin.read().splitlines()\n    if not lines:\n        return\n    nums = list(map(int, lines[0].split()))\n    target = int(lines[1].strip())\n    seen = {}\n    for i, num in enumerate(nums):\n        comp = target - num\n        if comp in seen:\n            print(f\"{seen[comp]} {i}\")\n            return\n        seen[num] = i\n\nif __name__ == '__main__':\n    solve()\n",
+    "timeLimitSeconds": 3.0,
+    "testCases": [
+      {
+        "input": "2 7 11 15\n9",
+        "expectedOutput": "0 1",
+        "isHidden": false
+      },
+      {
+        "input": "3 2 4\n6",
+        "expectedOutput": "1 2",
+        "isHidden": false
+      },
+      {
+        "input": "3 3\n6",
+        "expectedOutput": "0 1",
+        "isHidden": true
+      },
+      {
+        "input": "1 5 8 10 14\n18",
+        "expectedOutput": "2 3",
+        "isHidden": true
+      },
+      {
+        "input": "-3 4 3 90\n0",
+        "expectedOutput": "0 2",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "q_seed_002",
+    "title": "Valid Parentheses",
+    "slug": "valid-parentheses",
+    "topic": "strings",
+    "difficulty": "easy",
+    "type": "coding",
+    "description": "Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid. Open brackets must be closed by the same type of brackets, and in the correct order. Print 'true' if valid, or 'false' otherwise.",
+    "starterCode": {
+      "python": "import sys\n\ndef solve():\n    s = sys.stdin.read().strip()\n    # Your solution here\n\nif __name__ == '__main__':\n    solve()\n"
+    },
+    "referenceSolution": "import sys\n\ndef solve():\n    s = sys.stdin.read().strip()\n    stack = []\n    mapping = {')': '(', '}': '{', ']': '['}\n    for char in s:\n        if char in mapping:\n            top = stack.pop() if stack else '#'\n            if mapping[char] != top:\n                print(\"false\")\n                return\n        else:\n            stack.append(char)\n    print(\"true\" if not stack else \"false\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "timeLimitSeconds": 3.0,
+    "testCases": [
+      {
+        "input": "()",
+        "expectedOutput": "true",
+        "isHidden": false
+      },
+      {
+        "input": "()[]{}",
+        "expectedOutput": "true",
+        "isHidden": false
+      },
+      {
+        "input": "(]",
+        "expectedOutput": "false",
+        "isHidden": false
+      },
+      {
+        "input": "([)]",
+        "expectedOutput": "false",
+        "isHidden": true
+      },
+      {
+        "input": "{[]}",
+        "expectedOutput": "true",
+        "isHidden": true
+      },
+      {
+        "input": "[",
+        "expectedOutput": "false",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "q_seed_003",
+    "title": "Binary Search",
+    "slug": "binary-search",
+    "topic": "arrays",
+    "difficulty": "easy",
+    "type": "coding",
+    "description": "Given an array of distinct integers sorted in ascending order and a target value, print the 0-based index of the target if it exists in the array. If target does not exist, print -1.",
+    "starterCode": {
+      "python": "import sys\n\ndef solve():\n    lines = sys.stdin.read().splitlines()\n    if not lines:\n        return\n    nums = list(map(int, lines[0].split()))\n    target = int(lines[1].strip())\n    # Your solution here\n\nif __name__ == '__main__':\n    solve()\n"
+    },
+    "referenceSolution": "import sys\n\ndef solve():\n    lines = sys.stdin.read().splitlines()\n    if not lines:\n        return\n    nums = list(map(int, lines[0].split()))\n    target = int(lines[1].strip())\n    left, right = 0, len(nums) - 1\n    ans = -1\n    while left <= right:\n        mid = (left + right) // 2\n        if nums[mid] == target:\n            ans = mid\n            break\n        elif nums[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    print(ans)\n\nif __name__ == '__main__':\n    solve()\n",
+    "timeLimitSeconds": 3.0,
+    "testCases": [
+      {
+        "input": "-1 0 3 5 9 12\n9",
+        "expectedOutput": "4",
+        "isHidden": false
+      },
+      {
+        "input": "-1 0 3 5 9 12\n2",
+        "expectedOutput": "-1",
+        "isHidden": false
+      },
+      {
+        "input": "5\n5",
+        "expectedOutput": "0",
+        "isHidden": true
+      },
+      {
+        "input": "1 3 5 7 9 11 13 15\n1",
+        "expectedOutput": "0",
+        "isHidden": true
+      },
+      {
+        "input": "1 3 5 7 9 11 13 15\n15",
+        "expectedOutput": "7",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "q_seed_004",
+    "title": "Valid Palindrome",
+    "slug": "valid-palindrome",
+    "topic": "strings",
+    "difficulty": "easy",
+    "type": "coding",
+    "description": "Given a string, print 'true' if it reads the same forward and backward after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters. Print 'false' otherwise.",
+    "starterCode": {
+      "python": "import sys\n\ndef solve():\n    s = sys.stdin.read()\n    # Your solution here\n\nif __name__ == '__main__':\n    solve()\n"
+    },
+    "referenceSolution": "import sys\n\ndef solve():\n    s = sys.stdin.read()\n    filtered = [c.lower() for c in s if c.isalnum()]\n    print(\"true\" if filtered == filtered[::-1] else \"false\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "timeLimitSeconds": 3.0,
+    "testCases": [
+      {
+        "input": "A man, a plan, a canal: Panama",
+        "expectedOutput": "true",
+        "isHidden": false
+      },
+      {
+        "input": "race a car",
+        "expectedOutput": "false",
+        "isHidden": false
+      },
+      {
+        "input": " ",
+        "expectedOutput": "true",
+        "isHidden": false
+      },
+      {
+        "input": "0P",
+        "expectedOutput": "false",
+        "isHidden": true
+      },
+      {
+        "input": "ab_a",
+        "expectedOutput": "true",
+        "isHidden": true
+      },
+      {
+        "input": "Was it a car or a cat I saw?",
+        "expectedOutput": "true",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "q_seed_005",
+    "title": "Maximum Subarray",
+    "slug": "maximum-subarray",
+    "topic": "arrays",
+    "difficulty": "medium",
+    "type": "coding",
+    "description": "Given an integer array nums, find the contiguous subarray (containing at least one number) which has the largest sum and print its sum.",
+    "starterCode": {
+      "python": "import sys\n\ndef solve():\n    s = sys.stdin.read().strip()\n    # Your solution here\n\nif __name__ == '__main__':\n    solve()\n"
+    },
+    "referenceSolution": "import sys\n\ndef solve():\n    s = sys.stdin.read().strip()\n    if not s:\n        return\n    nums = list(map(int, s.split()))\n    max_sum = current_sum = nums[0]\n    for num in nums[1:]:\n        current_sum = max(num, current_sum + num)\n        max_sum = max(max_sum, current_sum)\n    print(max_sum)\n\nif __name__ == '__main__':\n    solve()\n",
+    "timeLimitSeconds": 3.0,
+    "testCases": [
+      {
+        "input": "-2 1 -3 4 -1 2 1 -5 4",
+        "expectedOutput": "6",
+        "isHidden": false
+      },
+      {
+        "input": "1",
+        "expectedOutput": "1",
+        "isHidden": false
+      },
+      {
+        "input": "5 4 -1 7 8",
+        "expectedOutput": "23",
+        "isHidden": false
+      },
+      {
+        "input": "-1 -2 -3",
+        "expectedOutput": "-1",
+        "isHidden": true
+      },
+      {
+        "input": "-2 -1",
+        "expectedOutput": "-1",
+        "isHidden": true
+      },
+      {
+        "input": "1 2 3 4 5",
+        "expectedOutput": "15",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "q_seed_006",
+    "title": "Trapping Rain Water",
+    "slug": "trapping-rain-water",
+    "topic": "arrays",
+    "difficulty": "hard",
+    "type": "coding",
+    "description": "Given n non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining and print the total units.",
+    "starterCode": {
+      "python": "import sys\n\ndef solve():\n    s = sys.stdin.read().strip()\n    # Your solution here\n\nif __name__ == '__main__':\n    solve()\n"
+    },
+    "referenceSolution": "import sys\n\ndef solve():\n    s = sys.stdin.read().strip()\n    if not s:\n        print(0)\n        return\n    height = list(map(int, s.split()))\n    if not height:\n        print(0)\n        return\n    left, right = 0, len(height) - 1\n    left_max, right_max = height[left], height[right]\n    ans = 0\n    while left < right:\n        if left_max < right_max:\n            left += 1\n            left_max = max(left_max, height[left])\n            ans += max(0, left_max - height[left])\n        else:\n            right -= 1\n            right_max = max(right_max, height[right])\n            ans += max(0, right_max - height[right])\n    print(ans)\n\nif __name__ == '__main__':\n    solve()\n",
+    "timeLimitSeconds": 3.0,
+    "testCases": [
+      {
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "expectedOutput": "6",
+        "isHidden": false
+      },
+      {
+        "input": "4 2 0 3 2 5",
+        "expectedOutput": "9",
+        "isHidden": false
+      },
+      {
+        "input": "1 2 3 4",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "input": "3 0 2 0 4",
+        "expectedOutput": "7",
+        "isHidden": true
+      },
+      {
+        "input": "2 0 2",
+        "expectedOutput": "2",
+        "isHidden": true
+      },
+      {
+        "input": "5 4 1 2",
+        "expectedOutput": "1",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "q_seed_007",
+    "title": "Database Indexing & B-Trees",
+    "slug": "database-indexing-b-trees",
+    "topic": "databases",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "description": "Explain how database indexing works, specifically focusing on B-Trees, logarithmic search time, and disk I/O reduction.",
+    "questionText": "Explain how database indexing works, specifically focusing on B-Trees, logarithmic search time, and disk I/O reduction.",
+    "referenceAnswer": "Database indexes use balanced B-Tree or B+ Tree data structures to organize indexed keys in sorted order. By storing multiple keys per node matching disk page block sizes, B-Trees maintain a very high branching factor and a shallow tree height. This guarantees O(log N) search, insertion, and deletion times while minimizing expensive disk I/O operations by reading entire index pages into memory cache in a single disk read.",
+    "keyConcepts": [
+      "B-Tree",
+      "logarithmic",
+      "O(log N)",
+      "disk I/O",
+      "branching factor",
+      "node",
+      "index page"
+    ]
+  },
+  {
+    "id": "q_seed_008",
+    "title": "ACID Transactions",
+    "slug": "acid-transactions",
+    "topic": "databases",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "description": "Explain ACID properties in database management systems and how they ensure data integrity during concurrent transactions and system failures.",
+    "questionText": "Explain ACID properties in database management systems and how they ensure data integrity during concurrent transactions and system failures.",
+    "referenceAnswer": "ACID transactions guarantee reliable database operations through four core properties: Atomicity ensures that all operations in a transaction succeed completely or roll back entirely (all-or-nothing), typically managed via write-ahead logging (WAL). Consistency enforces that transactions transition the database only between valid states respecting all constraints and invariants. Isolation prevents concurrent transactions from interfering with each other using lock-based concurrency control or multi-version concurrency control (MVCC). Durability guarantees that committed modifications survive crashes through persistent storage flushes.",
+    "keyConcepts": [
+      "Atomicity",
+      "Consistency",
+      "Isolation",
+      "Durability",
+      "rollback",
+      "write-ahead log",
+      "MVCC",
+      "concurrency"
+    ]
+  },
+  {
+    "id": "q_seed_009",
+    "title": "TCP vs UDP Protocols",
+    "slug": "tcp-vs-udp",
+    "topic": "system-design",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "description": "Compare TCP and UDP protocols, detailing connection establishment, packet ordering, reliability, and typical use cases.",
+    "questionText": "Compare TCP and UDP protocols, detailing connection establishment, packet ordering, reliability, and typical use cases.",
+    "referenceAnswer": "TCP is a connection-oriented, reliable transport protocol that uses a three-way handshake (SYN, SYN-ACK, ACK) to establish a connection. It guarantees ordered packet delivery, error checking, and retransmission of lost packets through sequence numbers and acknowledgments, making it ideal for web browsing (HTTP), file transfers, and emails. In contrast, UDP is connectionless and lightweight without handshakes or delivery guarantees, minimizing latency and overhead. UDP is preferred for real-time applications such as video streaming, VoIP, and gaming where occasional packet loss is acceptable.",
+    "keyConcepts": [
+      "three-way handshake",
+      "connection-oriented",
+      "connectionless",
+      "retransmission",
+      "packet ordering",
+      "latency",
+      "TCP",
+      "UDP"
+    ]
+  },
+  {
+    "id": "q_seed_010",
+    "title": "CAP Theorem in Distributed Systems",
+    "slug": "cap-theorem",
+    "topic": "system-design",
+    "difficulty": "hard",
+    "type": "conceptual",
+    "description": "Explain Brewer's CAP Theorem, detailing the trade-offs between Consistency, Availability, and Partition Tolerance in distributed systems.",
+    "questionText": "Explain Brewer's CAP Theorem, detailing the trade-offs between Consistency, Availability, and Partition Tolerance in distributed systems.",
+    "referenceAnswer": "The CAP Theorem states that in a distributed data store, it is impossible to simultaneously guarantee more than two out of three guarantees: Consistency, Availability, and Partition Tolerance. Network partitions are unavoidable in real-world distributed infrastructure, meaning systems must choose between Consistency (CP) and Availability (AP) during a partition. CP systems reject inconsistent reads/writes to ensure linearizability, while AP systems continue serving all requests at the cost of eventual consistency and temporary stale reads.",
+    "keyConcepts": [
+      "Consistency",
+      "Availability",
+      "Partition Tolerance",
+      "network partition",
+      "CP",
+      "AP",
+      "eventual consistency",
+      "linearizability"
+    ]
+  },
+  {
+    "id": "q_seed_011",
+    "title": "JavaScript Event Loop",
+    "slug": "javascript-event-loop",
+    "topic": "javascript",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "description": "Explain the JavaScript Event Loop, distinguishing between the call stack, microtask queue (Promises), and macrotask queue (setTimeout).",
+    "questionText": "Explain the JavaScript Event Loop, distinguishing between the call stack, microtask queue (Promises), and macrotask queue (setTimeout).",
+    "referenceAnswer": "JavaScript is single-threaded and executes synchronous code on the call stack. When asynchronous operations occur, callbacks are deferred to task queues. The Event Loop continuously monitors the call stack: when the stack is empty, it first drains all jobs in the microtask queue (such as Promise callbacks, process.nextTick, MutationObserver) until empty, before taking the oldest task from the macrotask queue (such as setTimeout, setInterval, I/O events). This priority guarantees microtasks execute immediately after the current execution context completes.",
+    "keyConcepts": [
+      "call stack",
+      "Event Loop",
+      "microtask queue",
+      "macrotask queue",
+      "Promises",
+      "single-threaded",
+      "setTimeout"
+    ]
+  },
+  {
+    "id": "q_seed_012",
+    "title": "Python Global Interpreter Lock (GIL)",
+    "slug": "python-gil",
+    "topic": "python",
+    "difficulty": "medium",
+    "type": "conceptual",
+    "description": "Explain the Python Global Interpreter Lock (GIL), why it exists in CPython, and how it impacts CPU-bound vs I/O-bound multithreaded applications.",
+    "questionText": "Explain the Python Global Interpreter Lock (GIL), why it exists in CPython, and how it impacts CPU-bound vs I/O-bound multithreaded applications.",
+    "referenceAnswer": "The Global Interpreter Lock (GIL) is a mutex used by CPython to protect access to Python objects, preventing multiple native threads from executing Python bytecode simultaneously. The GIL simplifies CPython's memory management by avoiding race conditions in non-thread-safe reference counting. Consequently, CPU-bound multithreaded Python programs cannot achieve true multi-core parallelism and often experience performance degradation due to thread context switching contention. However, for I/O-bound tasks (such as network requests and file reads), threads release the GIL while waiting for I/O, allowing efficient concurrent execution.",
+    "keyConcepts": [
+      "GIL",
+      "Global Interpreter Lock",
+      "mutex",
+      "CPython",
+      "reference counting",
+      "CPU-bound",
+      "I/O-bound",
+      "concurrency",
+      "multithreading"
+    ]
+  }
+]

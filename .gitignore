@@ -1,14 +1,32 @@
 node_modules/
 .env
+*.env
 .venv/
+*/.venv/
 __pycache__/
+*.pyc
 dist/
 *.log
 .DS_Store
 .pytest_cache/
+.cache/
+*/.cache/
+models/
+*/models/
+*.pt
+*.bin
+*.onnx
 
 # Ignore test artifacts and user uploads
 backend/dev-tools/*.webm
 backend/dev-tools/*.wav
-backend/uploads/recordings/*
+backend/uploads/
+uploads/
+*/uploads/
 !backend/uploads/recordings/.gitkeep
+
+# Ignore local mongo data
+.mongo_data/
+
+# Ignore Vite temporary config files
+*.timestamp-*.mjs

@@ -25,7 +25,8 @@ export const useMediaRecorder = () => {
       previewStreamRef.current = stream;
       
       // Setup Analyser for AudioLevelMeter
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const AudioCtxClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const audioCtx = new AudioCtxClass();
       audioContextRef.current = audioCtx;
       const source = audioCtx.createMediaStreamSource(stream);
       const analyser = audioCtx.createAnalyser();
@@ -35,8 +36,8 @@ export const useMediaRecorder = () => {
       
       setStatus('ready');
       return stream;
-    } catch (err: any) {
-      setError(err.message || 'Failed to get media permissions');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to get media permissions');
       setStatus('error');
       return null;
     }
@@ -101,8 +102,8 @@ export const useMediaRecorder = () => {
         });
       }, 1000);
       
-    } catch (err: any) {
-      setError(err.message || 'Failed to start recording');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to start recording');
       setStatus('error');
     }
   }, [stopRecordingInternal]);

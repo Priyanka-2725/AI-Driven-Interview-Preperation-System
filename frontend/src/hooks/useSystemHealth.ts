@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { systemService } from '../services/systemService';
 
 export const useSystemHealth = () => {
@@ -7,7 +7,7 @@ export const useSystemHealth = () => {
   const [isChecking, setIsChecking] = useState(false);
   const [lastCheckedAt, setLastCheckedAt] = useState<Date | null>(null);
 
-  const checkHealth = async () => {
+  const checkHealth = useCallback(async () => {
     setIsChecking(true);
     try {
       const result = await systemService.getMlHealth();
@@ -20,14 +20,13 @@ export const useSystemHealth = () => {
       setIsChecking(false);
       setLastCheckedAt(new Date());
     }
-  };
+  }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     checkHealth();
     const intervalId = setInterval(checkHealth, 30000);
     return () => clearInterval(intervalId);
-  }, []);
+  }, [checkHealth]);
 
   return { backendStatus, mlStatus, isChecking, lastCheckedAt };
 };

@@ -1,4 +1,4 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "AI Interview Coach ML Service"
@@ -7,8 +7,14 @@ class Settings(BaseSettings):
     
     # Can be overridden by environment variables
     ENVIRONMENT: str = "development"
+    ENABLE_INTERIM_RUNNER: bool = False
+    HOST: str = "127.0.0.1"
+    PORT: int = 8000
 
-    class Config:
-        case_sensitive = True
+    model_config = SettingsConfigDict(
+        case_sensitive=True,
+        extra="ignore",
+        env_file=".env"
+    )
 
 settings = Settings()

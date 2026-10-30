@@ -39,9 +39,10 @@ export const RecordingPage: React.FC = () => {
     try {
       const recording = await recordingService.uploadRecording(recordedBlob);
       navigate(`/results/${recording._id}`);
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Axios error handling
-      setUploadError(err.response?.data?.error?.message || err.message || 'Upload failed');
+      const axiosErr = err as { response?: { data?: { error?: { message?: string } } }; message?: string };
+      setUploadError(axiosErr.response?.data?.error?.message || axiosErr.message || 'Upload failed');
       setStatus('complete'); // Allow retry
     }
   };
