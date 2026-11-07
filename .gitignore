@@ -11,8 +11,8 @@ dist/
 .pytest_cache/
 .cache/
 */.cache/
-models/
-*/models/
+# Ignore downloaded ML model binaries
+ml-service/models/
 *.pt
 *.bin
 *.onnx
@@ -30,3 +30,4 @@ uploads/
 
 # Ignore Vite temporary config files
 *.timestamp-*.mjs
+.vite/
