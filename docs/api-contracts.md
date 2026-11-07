@@ -202,6 +202,10 @@
 }
 ```
 
+> [!NOTE]
+> **Week 6 QA Item (Cold-Start Preloading)**:
+> In cold-start scenarios, the initial audio evaluation can take up to ~60s due to JIT initialization and on-demand model/librosa feature loading. The frontend timeout (`180,000 ms` in `recordingService.ts`) and backend `ML_EVALUATE_TIMEOUT_MS` (`180,000 ms`) accommodate this, while warm executions complete in ~5s. In Week 6 QA, the Whisper model and feature extractors will be eagerly preloaded and warmed during ML service startup lifespan (`lifespan` in `app/main.py`) to reduce first-request latency.
+
 ### 9. `GET /api/v1/recordings` (Week 2)
 **Description:** Returns paginated list of user's recordings (user-isolated).
 **Auth:** Bearer Token
@@ -294,7 +298,7 @@
 **Description:** Executes code against **visible test cases only**. 
 - **ML Endpoint Reuse**: The backend reuses the ML Service endpoint `POST /api/v1/assessment/evaluate-code`. The backend fetches the question from MongoDB, filters test cases to visible only (`testCases.filter(t => !t.isHidden)`), and forwards only visible test cases to the ML service with `visibleOnly: true`.
 - **Zero Data Leak**: Hidden test cases and expectations are never transmitted or evaluated in this flow.
-- **No Graded Record**: Does NOT create a graded `Submission` or `Evaluation` document in MongoDB.
+- **No Graded Record**: Does NOT create a graded `Submission` record in MongoDB.
 **Auth:** Bearer Token
 **Rate Limit:** 20 requests per minute per user
 **Request Body:**
@@ -334,7 +338,7 @@
 ```
 
 ### 16. `POST /api/v1/submissions` (Week 3 - Graded Submit)
-**Description:** Submits code or conceptual answer for grading. Persists `Submission`, evaluates against visible and hidden test cases / NLP semantic reference, creates `Evaluation`, and updates status to `evaluated`. If ML service is offline, stores as `failed` / `pending` with 502/503 status allowing retry.
+**Description:** Submits code or conceptual answer for grading. Persists `Submission`, evaluates against visible and hidden test cases / NLP semantic reference, embeds evaluation details, and updates status to `evaluated`. If ML service is offline, stores as `failed` with 503 status allowing retry.
 **Auth:** Bearer Token
 **Request Body (Coding):**
 ```json
@@ -418,7 +422,7 @@
 **Auth:** Bearer Token
 
 ### 19. `GET /api/v1/submissions/:id` (Week 3)
-**Description:** Returns details of a specific submission and its populated `Evaluation`.
+**Description:** Returns details of a specific submission and its embedded evaluation.
 **Auth:** Bearer Token
 
 ### 20. `POST /api/v1/attempts` (Week 3)
