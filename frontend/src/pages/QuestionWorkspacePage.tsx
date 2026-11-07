@@ -15,13 +15,16 @@ import {
 } from 'lucide-react';
 import { assessmentService } from '../services/assessmentService';
 import { Question, CodingTestResult, QuestionTestCase } from '../types/assessment.types';
-import { CodeEditor } from '../components/assessment/CodeEditor';
 import { ConceptualAnswerEditor } from '../components/assessment/ConceptualAnswerEditor';
 import { VisibleTestPanel } from '../components/assessment/VisibleTestPanel';
 import {
   AssessmentErrorBanner,
   AssessmentErrorState,
 } from '../components/assessment/AssessmentErrorBanner';
+
+const CodeEditor = React.lazy(() =>
+  import('../components/assessment/CodeEditor').then((m) => ({ default: m.CodeEditor }))
+);
 
 export const QuestionWorkspacePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -359,12 +362,20 @@ export const QuestionWorkspacePage: React.FC = () => {
         <div className="lg:col-span-7 space-y-4">
           {isCoding ? (
             <div className="space-y-4">
-              <CodeEditor
-                value={code}
-                onChange={setCode}
-                language="python"
-                height="460px"
-              />
+              <React.Suspense
+                fallback={
+                  <div className="h-[460px] rounded-xl bg-[#1e1e1e] border border-slate-700/60 flex items-center justify-center text-slate-400 font-mono text-xs">
+                    Loading offline editor...
+                  </div>
+                }
+              >
+                <CodeEditor
+                  value={code}
+                  onChange={setCode}
+                  language="python"
+                  height="460px"
+                />
+              </React.Suspense>
 
               <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-surface-border shadow-sm">
                 <button

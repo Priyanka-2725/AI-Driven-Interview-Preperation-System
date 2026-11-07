@@ -17,6 +17,7 @@ interface AuthContextType {
   clearError: () => void;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const AuthContext = createContext<AuthContextType | null>(null);
 
 const getErrorMessage = (err: unknown, fallback: string): string => {

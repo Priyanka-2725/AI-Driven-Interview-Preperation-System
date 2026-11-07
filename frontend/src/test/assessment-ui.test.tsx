@@ -1,4 +1,3 @@
-import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -8,16 +7,21 @@ import { AssessmentErrorBanner } from '../components/assessment/AssessmentErrorB
 import { ConceptualAnswerEditor } from '../components/assessment/ConceptualAnswerEditor';
 import { ProtectedRoute } from '../routes/ProtectedRoute';
 import { assessmentService } from '../services/assessmentService';
+import { apiClient } from '../services/apiClient';
 import * as authHook from '../hooks/useAuth';
 import type { Submission } from '../types/assessment.types';
 
-// Mock assessmentService
-vi.mock('../services/assessmentService', () => ({
-  assessmentService: {
-    getSubmissionById: vi.fn(),
-    retrySubmission: vi.fn(),
-  },
-}));
+// Mock assessmentService: getSubmissionById is mocked, retrySubmission remains real to test axios POST dispatch
+vi.mock('../services/assessmentService', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../services/assessmentService')>();
+  return {
+    ...actual,
+    assessmentService: {
+      ...actual.assessmentService,
+      getSubmissionById: vi.fn(),
+    },
+  };
+});
 
 // Mock useAuth
 vi.mock('../hooks/useAuth', () => ({
@@ -39,28 +43,13 @@ describe('Automated UI Tests - Assessment & Security Requirements', () => {
       id: 'sub-test-hidden-1',
       userId: 'user-abc',
       questionId: 'two-sum',
-      questionTitle: 'Two Sum',
       type: 'coding',
-      questionCategory: 'coding',
-      questionDifficulty: 'easy',
       code: 'def two_sum(nums, target): return [0, 1]',
       language: 'python',
-      status: 'passed',
+      status: 'evaluated',
       score: 95,
-      rubricScores: {
-        correctness: 95,
-        timeComplexity: 90,
-        spaceComplexity: 90,
-        codeQuality: 95,
-      },
-      detailedFeedback: {
-        overview: 'Good execution',
-        correctness: 'Passed visible and hidden suites',
-        timeComplexity: 'Optimal linear lookup',
-        spaceComplexity: 'Auxiliary hash map',
-        codeQuality: 'Well styled',
-        suggestions: [],
-      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       evaluation: {
         score: 95,
         testResults: [
@@ -93,7 +82,6 @@ describe('Automated UI Tests - Assessment & Security Requirements', () => {
           },
         ],
       },
-      createdAt: new Date().toISOString(),
     };
 
     it('renders "Hidden test passed" and "Hidden test failed" without disclosing input/output in the DOM', async () => {
@@ -169,28 +157,38 @@ describe('Automated UI Tests - Assessment & Security Requirements', () => {
       expect(mockOnRetry).toHaveBeenCalledWith('sub-retry-test-503');
     });
 
-    it('invokes assessmentService.retrySubmission which calls /submissions/:id/retry endpoint', async () => {
+    it('dispatches HTTP POST to /submissions/:id/retry via axios when retry button is clicked', async () => {
       const user = userEvent.setup();
       const mockFailedSubmission: Submission = {
         _id: 'sub-retry-503',
         id: 'sub-retry-503',
         userId: 'user-abc',
         questionId: 'two-sum',
-        questionTitle: 'Two Sum',
-        questionCategory: 'coding',
-        questionDifficulty: 'easy',
+        type: 'coding',
         code: 'def two_sum(): pass',
         language: 'python',
         status: 'failed',
-        error: 'ML service unavailable. Evaluation queued for retry.',
+        errorDetails: {
+          message: 'ML service unavailable. Evaluation queued for retry.',
+        },
         createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
       vi.mocked(assessmentService.getSubmissionById).mockResolvedValue(mockFailedSubmission);
-      vi.mocked(assessmentService.retrySubmission).mockResolvedValue({
-        ...mockFailedSubmission,
-        status: 'passed',
-        score: 90,
+
+      // Mock axios instance POST method directly to assert endpoint and HTTP verb
+      const postSpy = vi.spyOn(apiClient, 'post').mockResolvedValue({
+        data: {
+          success: true,
+          data: {
+            submission: {
+              ...mockFailedSubmission,
+              status: 'evaluated',
+              score: 90,
+            },
+          },
+        },
       });
 
       render(
@@ -212,8 +210,11 @@ describe('Automated UI Tests - Assessment & Security Requirements', () => {
         await user.click(retryBtn);
       });
 
-      expect(assessmentService.retrySubmission).toHaveBeenCalledTimes(1);
-      expect(assessmentService.retrySubmission).toHaveBeenCalledWith('sub-retry-503');
+      // Assert that HTTP POST request was made directly to /submissions/:id/retry with POST method
+      expect(postSpy).toHaveBeenCalledTimes(1);
+      expect(postSpy).toHaveBeenCalledWith('/submissions/sub-retry-503/retry');
+
+      postSpy.mockRestore();
     });
   });
 
@@ -291,12 +292,15 @@ describe('Automated UI Tests - Assessment & Security Requirements', () => {
       // Unauthenticated state
       vi.mocked(authHook.useAuth).mockReturnValue({
         user: null,
+        accessToken: null,
         isInitialising: false,
-        token: null,
+        isSubmitting: false,
+        error: null,
         login: vi.fn(),
         register: vi.fn(),
         logout: vi.fn(),
-        refreshToken: vi.fn(),
+        refreshSession: vi.fn(),
+        clearError: vi.fn(),
       });
 
       render(
@@ -323,17 +327,24 @@ describe('Automated UI Tests - Assessment & Security Requirements', () => {
       vi.mocked(authHook.useAuth).mockReturnValue({
         user: {
           id: 'usr-1',
-          name: 'Priyanka Singh',
+          fullName: 'Priyanka Singh',
           email: 'priyanka@example.com',
-          role: 'user',
+          role: 'candidate',
+          experienceLevel: 'junior',
+          lastLoginAt: null,
+          isActive: true,
           createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
         },
+        accessToken: 'mock-valid-token',
         isInitialising: false,
-        token: 'mock-valid-token',
+        isSubmitting: false,
+        error: null,
         login: vi.fn(),
         register: vi.fn(),
         logout: vi.fn(),
-        refreshToken: vi.fn(),
+        refreshSession: vi.fn(),
+        clearError: vi.fn(),
       });
 
       render(

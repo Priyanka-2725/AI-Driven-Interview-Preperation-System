@@ -2,6 +2,19 @@ import React from 'react';
 import Editor, { OnMount, loader } from '@monaco-editor/react';
 import * as monaco from 'monaco-editor';
 
+import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
+import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
+
+// Configure Monaco environment for Vite web workers locally (offline / no CDN)
+self.MonacoEnvironment = {
+  getWorker(_: unknown, label: string) {
+    if (label === 'typescript' || label === 'javascript') {
+      return new tsWorker();
+    }
+    return new editorWorker();
+  },
+};
+
 // Configure @monaco-editor/react to use locally bundled monaco instance (offline / no CDN)
 loader.config({ monaco });
 
@@ -23,6 +36,9 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   className = '',
 }) => {
   const handleEditorMount: OnMount = (editor) => {
+    if (typeof window !== 'undefined') {
+      (window as unknown as { __monacoEditor?: unknown }).__monacoEditor = editor;
+    }
     editor.updateOptions({
       tabSize: 4,
       insertSpaces: true,
