@@ -101,6 +101,8 @@ class SubprocessCodeRunner(CodeRunner):
     """
     Interim code runner executing Python code via subprocess with python -I,
     stripped environment, AST denylist filter, and stdin/stdout matching.
+    NOTE: Memory limiting is NOT enforced in Week 3 (Windows lacks POSIX
+    resource.setrlimit; hard cgroup memory caps are deferred to Week 5 Docker sandbox).
     """
 
     def execute(
